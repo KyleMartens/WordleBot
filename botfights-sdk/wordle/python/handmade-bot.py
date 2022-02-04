@@ -5,7 +5,7 @@
 
 
 import random
-
+import pandas as pd
 
 FN_WORDLIST = 'wordlist.txt'
 
@@ -53,8 +53,8 @@ def play(state):
     possible = get_wordlist()
     letters ='abcdefghijklmnopqrstuvwxyz'
     #These are the least common letter to the most common letters ranked
-    letterdict = {'q': 0, 'x': 1, 'j': 2, 'z': 3, 'v': 4, 'f': 5, 'w': 6, 'k': 7, 'b': 8, 'g': 9, 'h': 10, 'm': 11, 'p': 12, 'c': 13, 'y': 14, 'd': 15, 
-    'u': 16, 'n': 17, 't': 18, 'l': 19, 'i': 20, 'r': 21, 'o': 22, 'a': 23, 'e': 24, 's': 25}
+    #letterdict = {'q': 0, 'x': 1, 'j': 2, 'z': 3, 'v': 4, 'f': 5, 'w': 6, 'k': 7, 'b': 8, 'g': 9, 'h': 10, 'm': 11, 'p': 12, 'c': 13, 'y': 14, 'd': 15, 
+    #'u': 16, 'n': 17, 't': 18, 'l': 19, 'i': 20, 'r': 21, 'o': 22, 'a': 23, 'e': 24, 's': 25}
     # this makes the first guess arose which is testing the most common letters in the word list
     if len(state) == 11:
         return 'arose'
@@ -62,16 +62,23 @@ def play(state):
         for pair in state.split(','):
             guess, feedback = pair.split(':')
             possible = list(filter(lambda x: could_match(x, guess, feedback), possible))
+        letterdf = pd.DataFrame({'words':possible})
+
+        for x in letters:
+            letterdf.insert(letterdf.columns.shape[0], x, letterdf['words'].str.count(x))
+        letterdict = {}
+        for x in range(len((letterdf.iloc[:,1:27] > 0).sum().sort_values(ascending=True))):
+            letterdict[(letterdf.iloc[:,1:27] > 0).sum().sort_values(ascending=True).index[x]] = x
         commonalitydict = {}
         for word in possible:
             commonalityscore = 0
             for letter in word:
                 commonalityscore += letterdict[letter]
             commonalitydict[word] = commonalityscore
-        possibile = []
+        possible = []
         for x in commonalitydict:
             if commonalitydict[x] == max(commonalitydict.values()):
-                possibile.append(x)
+                possible.append(x)
         
         return random.choice(possible)
 
