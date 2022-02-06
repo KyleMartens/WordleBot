@@ -63,16 +63,13 @@ def play(state):
             guess, feedback = pair.split(':')
             possible = list(filter(lambda x: could_match(x, guess, feedback), possible))
         letterdf = pd.DataFrame({'words':possible})
-
-        for x in letters:
-            letterdf.insert(letterdf.columns.shape[0], x, letterdf['words'].str.count(x))
         letterdict = {}
-        for x in range(len((letterdf.iloc[:,1:27] > 0).sum().sort_values(ascending=True))):
-            letterdict[(letterdf.iloc[:,1:27] > 0).sum().sort_values(ascending=True).index[x]] = x
+        for x in letters:
+            letterdict[x] = letterdf['words'].str.contains(x).sum()
         commonalitydict = {}
         for word in possible:
             commonalityscore = 0
-            #removing duplicate letters
+            #removing duplicate letters so that we get more letter variety
             duplicates = []
             for letter in word:
                 if letter not in duplicates:
