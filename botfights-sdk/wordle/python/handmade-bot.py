@@ -72,8 +72,12 @@ def play(state):
         commonalitydict = {}
         for word in possible:
             commonalityscore = 0
+            #removing duplicate letters
+            duplicates = []
             for letter in word:
-                commonalityscore += letterdict[letter]
+                if letter not in duplicates:
+                    commonalityscore += letterdict[letter]
+                duplicates.append(letter)
             commonalitydict[word] = commonalityscore
         possible = []
         for x in commonalitydict:
